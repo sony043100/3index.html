@@ -1,0 +1,1153 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>彰濱天后宮 - 線上參拜祈福與農民曆疏文系統</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Font: Noto Serif TC -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <!-- html2canvas CDN for image generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        templeRed: '#6d1018',
+                        templeGold: '#d4af37',
+                        templeBrightGold: '#f59e0b',
+                        templeDarkRed: '#4a0a0f',
+                        paperYellow: '#fbf5e6',
+                        vermilion: '#e3342f'
+                    },
+                    fontFamily: {
+                        serif: ['"Noto Serif TC"', 'serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Noto Serif TC', serif;
+            background-color: #f7f3eb;
+            color: #2d231a;
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1e8d9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #ab7938;
+            border-radius: 4px;
+        }
+
+        /* Calligraphy vertical layout for ShuWen scroll (Right to Left) matching classical style */
+        .vertical-text-rtl {
+            writing-mode: vertical-rl;
+            text-orientation: upright;
+            direction: rtl;
+            letter-spacing: 0.22em;
+            line-height: 2.5rem;
+        }
+
+        /* Dynamic glow effects */
+        .gold-glow {
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.6);
+        }
+        .lantern-flicker {
+            animation: flicker 3s infinite ease-in-out;
+        }
+        @keyframes flicker {
+            0%, 100% { opacity: 0.9; transform: scale(1); filter: drop-shadow(0 0 8px #f59e0b); }
+            50% { opacity: 1; transform: scale(1.02); filter: drop-shadow(0 0 16px #f97316); }
+        }
+
+        /* Incense smoke effect */
+        .incense-smoke {
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 4px;
+            height: 40px;
+            background: linear-gradient(to top, rgba(220,220,220,0.9), rgba(255,255,255,0));
+            filter: blur(2px);
+            animation: smokeRise 2.5s infinite linear;
+        }
+        @keyframes smokeRise {
+            0% { transform: translateX(-50%) translateY(0) scaleX(1); opacity: 0.8; }
+            50% { transform: translateX(-40%) translateY(-15px) scaleX(1.8); opacity: 0.5; }
+            100% { transform: translateX(-60%) translateY(-35px) scaleX(2.5); opacity: 0; }
+        }
+        /* Temple Fortune Cylinder (籤筒) Shaking Animation */
+        .temple-cylinder-shake {
+            animation: templeShake 0.4s ease-in-out infinite;
+            transform-origin: bottom center;
+        }
+        @keyframes templeShake {
+            0%, 100% { transform: rotate(0deg) translateY(0); }
+            20% { transform: rotate(-12deg) translateY(-2px); }
+            40% { transform: rotate(10deg) translateY(1px); }
+            60% { transform: rotate(-10deg) translateY(-2px); }
+            80% { transform: rotate(8deg) translateY(1px); }
+        }
+
+        /* Fortune stick jumping and being pulled out animation */
+        .stick-jump-out {
+            animation: stickJumpAnim 1.8s ease-out forwards;
+        }
+        @keyframes stickJumpAnim {
+            0% { transform: translateY(0) scaleY(1); opacity: 0; }
+            25% { transform: translateY(-30px) scaleY(1.05); opacity: 0.8; }
+            60% { transform: translateY(-85px) scaleY(1.15); opacity: 1; filter: drop-shadow(0 0 10px #fcd34d); }
+            100% { transform: translateY(-70px) scaleY(1); opacity: 1; filter: drop-shadow(0 0 6px #fcd34d); }
+        }
+
+        /* Realistic Moon Block (Jiao) styling */
+        .moon-block {
+            width: 75px;
+            height: 50px;
+            background: linear-gradient(135deg, #b91c1c 0%, #7f1d1d 100%);
+            border: 2px solid #fcd34d;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.3), inset 0 2px 4px rgba(255,255,255,0.3);
+            transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fef08a;
+            font-size: 11px;
+            font-weight: bold;
+            position: relative;
+        }
+        .moon-curved-yang {
+            border-radius: 50% 50% 10% 10% / 80% 80% 20% 20%;
+        }
+        .moon-curved-yin {
+            border-radius: 10% 10% 50% 50% / 20% 20% 80% 80%;
+        }
+        .poe-toss-anim {
+            animation: tossPoeMotion 0.8s ease-out;
+        }
+        @keyframes tossPoeMotion {
+            0% { transform: translateY(0) rotate(0deg) scale(1); }
+            50% { transform: translateY(-110px) rotate(540deg) scale(1.2); }
+            100% { transform: translateY(0) rotate(1080deg) scale(1); }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between selection:bg-templeGold selection:text-templeDarkRed">
+
+    <header class="bg-gradient-to-r from-templeDarkRed via-templeRed to-templeDarkRed text-white shadow-xl border-b-4 border-templeGold relative overflow-hidden">
+        <div class="max-w-6xl mx-auto px-4 py-5 relative z-10 flex flex-col lg:flex-row items-center justify-between gap-4">
+            
+            <!-- Logo & Title -->
+            <div class="flex items-center space-x-4">
+                <div class="w-16 h-16 md:w-20 md:h-20 rounded-full bg-templeGold p-1 shadow-2xl border-2 border-amber-200 flex-shrink-0 overflow-hidden">
+                    <img src="https://lh3.googleusercontent.com/d/1F913ACLoeh9UxYKOLZ3TBnpGnbH-KlLm=s1000" onerror="this.onerror=null; this.src='https://placehold.co/100x100/6d1018/d4af37?text=媽祖';" alt="彰濱天后宮媽祖聖像" class="w-full h-full object-cover rounded-full">
+                </div>
+                <div>
+                    <h1 class="text-2xl md:text-3xl font-black tracking-widest text-amber-200 drop-shadow">彰濱天后宮</h1>
+                    <p class="text-xs md:text-sm text-amber-100 font-semibold tracking-wider mt-0.5">媽祖護彰濱．秀傳守健康</p>
+                    <p class="text-[11px] text-amber-200/80 mt-1 flex items-center space-x-2">
+                        <span><i class="fa-regular fa-clock text-templeGold mr-1"></i>開放參拜時間：每日：06：00~22：00</span>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Header Quick Info & Social Links -->
+            <div class="flex flex-wrap items-center justify-center gap-3">
+                <a href="https://www.facebook.com/cb.scm.hospital" target="_blank" rel="noopener noreferrer" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center space-x-1.5 shadow">
+                    <i class="fa-brands fa-facebook text-sm"></i>
+                    <span>FB 粉絲專頁</span>
+                </a>
+
+                <!-- Quick Date Badge -->
+                <div class="bg-black/40 backdrop-blur-md border border-templeGold/40 rounded-xl px-4 py-1.5 text-center text-xs">
+                    <div id="headerSolarDate" class="font-bold text-amber-300">載入中...</div>
+                    <div id="headerLunarDate" class="text-amber-100 text-[11px]">農民曆計算中</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-templeGold/20 h-1.5 w-full"></div>
+
+        <!-- Navigation Tabs -->
+        <nav class="bg-templeDarkRed/90 border-t border-amber-900/50">
+            <div class="max-w-6xl mx-auto flex overflow-x-auto no-scrollbar text-amber-100 text-xs md:text-sm font-bold">
+                <button onclick="switchTab('worship')" id="tab-worship" class="tab-btn flex-1 min-w-[100px] py-3 px-2 text-center border-b-2 border-templeGold bg-amber-950/40 text-amber-300 transition-all">
+                    <i class="fa-solid fa-vihara mr-1"></i> 線上參拜
+                </button>
+                <button onclick="switchTab('shuwen')" id="tab-shuwen" class="tab-btn flex-1 min-w-[100px] py-3 px-2 text-center border-b-2 border-transparent hover:text-amber-300 transition-all">
+                    <i class="fa-solid fa-scroll mr-1"></i> 祈福疏文
+                </button>
+                <button onclick="switchTab('almanac')" id="tab-almanac" class="tab-btn flex-1 min-w-[100px] py-3 px-2 text-center border-b-2 border-transparent hover:text-amber-300 transition-all">
+                    <i class="fa-solid fa-calendar-days mr-1"></i> 即時農民曆
+                </button>
+                <button onclick="switchTab('fortune')" id="tab-fortune" class="tab-btn flex-1 min-w-[100px] py-3 px-2 text-center border-b-2 border-transparent hover:text-amber-300 transition-all">
+                    <i class="fa-solid fa-yin-yang mr-1"></i> 媽祖靈籤
+                </button>
+                <button onclick="switchTab('lantern')" id="tab-lantern" class="tab-btn flex-1 min-w-[100px] py-3 px-2 text-center border-b-2 border-transparent hover:text-amber-300 transition-all">
+                    <i class="fa-solid fa-lightbulb mr-1"></i> 點光明燈
+                </button>
+                <button onclick="switchTab('announcement')" id="tab-announcement" class="tab-btn flex-1 min-w-[110px] py-3 px-2 text-center border-b-2 border-transparent hover:text-amber-300 transition-all text-amber-200">
+                    <i class="fa-solid fa-bullhorn mr-1 text-templeGold"></i> 彰濱天后宮公告
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <div id="toastNotification" class="fixed bottom-5 right-5 z-50 bg-templeDarkRed text-amber-200 border-2 border-templeGold px-5 py-3 rounded-xl shadow-2xl transition-all duration-300 transform translate-y-20 opacity-0 pointer-events-none flex items-center space-x-3">
+        <i class="fa-solid fa-circle-info text-templeGold text-lg"></i>
+        <span id="toastMsg" class="text-sm font-bold"></span>
+    </div>
+
+    <div id="customModal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+        <div class="bg-amber-50 border-4 border-templeGold rounded-2xl max-w-md w-full p-6 text-center shadow-2xl transform transition-all">
+            <div class="w-16 h-16 bg-templeRed text-templeGold rounded-full flex items-center justify-center text-2xl mx-auto mb-4 shadow-inner border-2 border-amber-300">
+                <i class="fa-solid fa-hands-praying"></i>
+            </div>
+            <h3 id="modalTitle" class="text-xl font-black text-templeDarkRed mb-2">彰濱天后宮</h3>
+            <p id="modalMessage" class="text-sm text-gray-700 leading-relaxed mb-6"></p>
+            <button onclick="closeModal()" class="bg-templeRed hover:bg-templeDarkRed text-amber-200 font-bold px-6 py-2.5 rounded-xl shadow-md transition w-full border border-templeGold/50">
+                確定了解
+            </button>
+        </div>
+    </div>
+
+    <main class="max-w-6xl mx-auto w-full px-4 py-8 flex-grow">
+
+        <!-- 1. 參拜大殿 -->
+        <section id="sec-worship" class="tab-content block space-y-6">
+            <div class="bg-gradient-to-b from-amber-900 via-templeDarkRed to-amber-950 rounded-2xl p-6 text-white shadow-2xl border-2 border-templeGold relative overflow-hidden">
+                <div class="text-center mb-6">
+                    <span class="bg-templeGold/20 text-amber-200 border border-templeGold/40 px-3 py-1 rounded-full text-xs font-semibold">誠心正意 ‧ 感應道交</span>
+                    <h2 class="text-2xl md:text-4xl font-black text-amber-300 mt-2 tracking-wide">天上聖母 聖座大殿</h2>
+                    <p class="text-amber-100/80 text-xs md:text-sm mt-1">點燃心香一炷 獻上鮮花素果 祈求聖母慈悲庇佑</p>
+                </div>
+
+                <div class="relative bg-black/50 rounded-xl p-6 md:p-8 border border-amber-500/30 flex flex-col items-center justify-center min-h-[460px] text-center overflow-hidden">
+                    
+                    <div class="relative flex items-center justify-center space-x-4 md:space-x-8 mb-4 w-full max-w-xl">
+                        <!-- Left Flower Vase Offering -->
+                        <div id="flowerVaseLeft" class="hidden flex-col items-center opacity-0 transition-opacity duration-700">
+                            <div class="text-2xl md:text-3xl text-rose-300 animate-bounce">💐</div>
+                            <div class="w-10 h-16 bg-gradient-to-b from-amber-200 to-amber-600 rounded-b-2xl rounded-t-md border-2 border-yellow-300 shadow-lg flex items-center justify-center text-[10px] text-amber-950 font-black">
+                                鮮花
+                            </div>
+                            <span class="text-[10px] text-amber-200 font-bold mt-1">獻花供養</span>
+                        </div>
+
+                        <!-- Central Shrine Image -->
+                        <div class="relative">
+                            <div class="w-36 h-36 md:w-48 md:h-48 rounded-full bg-gradient-to-tr from-amber-600 via-yellow-400 to-amber-200 p-1.5 shadow-2xl gold-glow flex items-center justify-center relative overflow-hidden bg-amber-900">
+                                <img src="https://lh3.googleusercontent.com/d/1F913ACLoeh9UxYKOLZ3TBnpGnbH-KlLm=s1000" onerror="this.onerror=null; this.src='https://placehold.co/200x200/6d1018/d4af37?text=彰濱天后宮媽祖';" alt="彰濱天后宮鎮殿媽" class="w-full h-full object-cover rounded-full">
+                            </div>
+                            <div class="bg-amber-950/90 border border-templeGold text-amber-200 text-[11px] font-black px-3 py-0.5 rounded-full shadow-md mt-2 inline-block">
+                                彰濱天后宮鎮殿媽
+                            </div>
+                        </div>
+
+                        <!-- Right Flower Vase Offering -->
+                        <div id="flowerVaseRight" class="hidden flex-col items-center opacity-0 transition-opacity duration-700">
+                            <div class="text-2xl md:text-3xl text-rose-300 animate-bounce">💐</div>
+                            <div class="w-10 h-16 bg-gradient-to-b from-amber-200 to-amber-600 rounded-b-2xl rounded-t-md border-2 border-yellow-300 shadow-lg flex items-center justify-center text-[10px] text-amber-950 font-black">
+                                鮮花
+                            </div>
+                            <span class="text-[10px] text-amber-200 font-bold mt-1">獻花供養</span>
+                        </div>
+                    </div>
+
+                    <!-- Fruit Platters Display -->
+                    <div id="fruitPlateContainer" class="hidden my-3 w-full max-w-2xl opacity-0 transition-all duration-700">
+                        <div class="text-[11px] text-amber-300 font-bold mb-2">天后宮香爐前 ‧ 五果分開裝盤供養</div>
+                        <div class="grid grid-cols-2 sm:grid-cols-5 gap-2.5">
+                            <div class="bg-amber-950/80 border border-templeGold/60 rounded-xl p-2.5 flex flex-col items-center shadow-lg">
+                                <div class="text-xl md:text-2xl mb-1">🍎 🍎 🍎</div>
+                                <span class="text-[11px] font-bold text-amber-200">平安蘋果 (3顆)</span>
+                            </div>
+                            <div class="bg-amber-950/80 border border-templeGold/60 rounded-xl p-2.5 flex flex-col items-center shadow-lg">
+                                <div class="text-xl md:text-2xl mb-1">🍊 🍊 🍊</div>
+                                <span class="text-[11px] font-bold text-amber-200">吉利柑橘 (3顆)</span>
+                            </div>
+                            <div class="bg-amber-950/80 border border-templeGold/60 rounded-xl p-2.5 flex flex-col items-center shadow-lg">
+                                <div class="text-xl md:text-2xl mb-1">🍑 🍑 🍑</div>
+                                <span class="text-[11px] font-bold text-amber-200">長壽水蜜桃 (3顆)</span>
+                            </div>
+                            <div class="bg-amber-950/80 border border-templeGold/60 rounded-xl p-2.5 flex flex-col items-center shadow-lg">
+                                <div class="text-xl md:text-2xl mb-1">🥝 🥝 🥝</div>
+                                <span class="text-[11px] font-bold text-amber-200">福氣奇異果 (3顆)</span>
+                            </div>
+                            <div class="bg-amber-950/80 border border-templeGold/60 rounded-xl p-2.5 flex flex-col items-center shadow-lg col-span-2 sm:col-span-1">
+                                <div class="text-xl md:text-2xl mb-1">🍌</div>
+                                <span class="text-[11px] font-bold text-amber-200">招財香蕉 (1串)</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Incense Burner Display -->
+                    <div class="relative flex flex-col items-center mt-2">
+                        <div id="incenseSticksContainer" class="flex space-x-2 h-14 items-end mb-1 opacity-0 transition-opacity duration-700">
+                            <div class="w-1 bg-red-700 h-10 relative rounded-t"><div class="incense-smoke"></div></div>
+                            <div class="w-1 bg-red-700 h-12 relative rounded-t"><div class="incense-smoke"></div></div>
+                            <div class="w-1 bg-red-700 h-10 relative rounded-t"><div class="incense-smoke"></div></div>
+                        </div>
+                        <div class="w-32 h-14 bg-gradient-to-b from-amber-600 via-amber-800 to-amber-950 border-2 border-amber-300 rounded-b-3xl rounded-t-lg flex flex-col items-center justify-center shadow-2xl text-amber-200 text-xs font-bold">
+                            <span>天后宮香爐</span>
+                        </div>
+                    </div>
+
+                    <div id="worshipStatusMsg" class="mt-5 text-amber-200 font-semibold bg-black/60 px-4 py-2 rounded-lg border border-amber-500/30 text-xs md:text-sm">
+                        請點擊下方按鈕進行誠心上香與獻供
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+                    <button onclick="lightIncense()" class="bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white font-bold py-3.5 px-4 rounded-xl shadow-lg border border-amber-300/40 flex items-center justify-center space-x-2 transition-all transform hover:scale-105 active:scale-95">
+                        <i class="fa-solid fa-fire text-amber-300 text-lg"></i>
+                        <span>誠心點香上香</span>
+                    </button>
+                    <button onclick="offerFlowers()" class="bg-gradient-to-r from-emerald-700 to-emerald-800 hover:from-emerald-600 hover:to-emerald-700 text-white font-bold py-3.5 px-4 rounded-xl shadow-lg border border-emerald-300/40 flex items-center justify-center space-x-2 transition-all transform hover:scale-105 active:scale-95">
+                        <i class="fa-solid fa-fan text-emerald-300 text-lg"></i>
+                        <span>獻上鮮花供養</span>
+                    </button>
+                    <button onclick="offerFruits()" class="bg-gradient-to-r from-rose-700 to-rose-800 hover:from-rose-600 hover:to-rose-700 text-white font-bold py-3.5 px-4 rounded-xl shadow-lg border border-rose-300/40 flex items-center justify-center space-x-2 transition-all transform hover:scale-105 active:scale-95">
+                        <i class="fa-solid fa-apple-whole text-rose-300 text-lg"></i>
+                        <span>獻五果素果供養</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. 祈福疏文系統 -->
+        <section id="sec-shuwen" class="tab-content hidden space-y-6">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                <div class="lg:col-span-5 bg-white rounded-2xl p-6 shadow-xl border border-amber-200">
+                    <div class="border-b-2 border-templeRed pb-3 mb-4">
+                        <h2 class="text-xl font-black text-templeRed flex items-center">
+                            <i class="fa-solid fa-pen-nib mr-2 text-templeGold"></i> 填寫祈福疏文資料
+                        </h2>
+                        <p class="text-xs text-gray-500 mt-1">請如實填寫信士個人資訊與服務單位，系統將自動生成標準直行奏文</p>
+                    </div>
+
+                    <form id="shuwenForm" onsubmit="event.preventDefault(); renderShuWen();" class="space-y-4 text-sm">
+                        <div>
+                            <label class="block font-bold text-gray-700 mb-1">祈求願望類別</label>
+                            <select id="shuCategory" onchange="renderShuWen()" class="w-full bg-amber-50/50 border border-amber-300 rounded-lg p-2.5 focus:ring-2 focus:ring-templeRed focus:outline-none">
+                                <option value="闔家平安">平安祈福 (平安順遂、消災解厄)</option>
+                                <option value="事業順利">事業財運 (生意興隆、財源廣進)</option>
+                                <option value="功名學業">文昌功名 (金榜題名、考運亨通)</option>
+                                <option value="身體健康">身體健康 (祛病延年、身心康泰)</option>
+                                <option value="姻緣圓滿">良緣求姻緣 (家庭和睦、月老牽線)</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block font-bold text-gray-700 mb-1">信士 / 信女 姓名</label>
+                            <input type="text" id="shuName" value="陳小明" oninput="renderShuWen()" placeholder="請輸入姓名" class="w-full bg-amber-50/50 border border-amber-300 rounded-lg p-2.5 focus:ring-2 focus:ring-templeRed focus:outline-none">
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block font-bold text-gray-700 mb-1">稱謂</label>
+                                <select id="shuGender" onchange="renderShuWen()" class="w-full bg-amber-50/50 border border-amber-300 rounded-lg p-2.5 focus:ring-2 focus:ring-templeRed focus:outline-none">
+                                    <option value="信士">信士 (男性)</option>
+                                    <option value="信女">信女 (女性)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block font-bold text-gray-700 mb-1">生肖</label>
+                                <select id="shuZodiac" onchange="renderShuWen()" class="w-full bg-amber-50/50 border border-amber-300 rounded-lg p-2.5 focus:ring-2 focus:ring-templeRed focus:outline-none">
+                                    <option value="鼠">肖鼠</option><option value="牛">肖牛</option>
+                                    <option value="虎">肖虎</option><option value="兔">肖兔</option>
+                                    <option value="龍">肖龍</option><option value="蛇">肖蛇</option>
+                                    <option value="馬" selected>肖馬</option><option value="羊">肖羊</option>
+                                    <option value="猴">肖猴</option><option value="雞">肖雞</option>
+                                    <option value="狗">肖狗</option><option value="豬">肖豬</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block font-bold text-gray-700 mb-1">服務單位 / 通訊地點</label>
+                            <input type="text" id="shuUnit" value="秀傳醫療體系 / 彰化縣鹿港鎮鹿工路6號" oninput="renderShuWen()" placeholder="例如：秀傳醫療體系 / 彰化縣鹿港鎮鹿工路6號" class="w-full bg-amber-50/50 border border-amber-300 rounded-lg p-2.5 focus:ring-2 focus:ring-templeRed focus:outline-none">
+                        </div>
+
+                        <div>
+                            <label class="block font-bold text-gray-700 mb-1">詳細祈求心願 (簡述)</label>
+                            <textarea id="shuCustomWish" rows="3" oninput="renderShuWen()" class="w-full bg-amber-50/50 border border-amber-300 rounded-lg p-2.5 focus:ring-2 focus:ring-templeRed focus:outline-none" placeholder="祈求天上聖母慈悲庇佑，保佑弟子工作順利、家人平安身體健康。">祈求天上聖母庇佑弟子事業順利、闔家身體健康、消災解厄、萬事吉祥。</textarea>
+                        </div>
+
+                        <div class="pt-2 flex flex-col sm:flex-row gap-3">
+                            <button type="button" onclick="copyShuWenText()" class="flex-1 bg-amber-800 hover:bg-amber-900 text-white font-bold py-2.5 px-4 rounded-lg shadow text-center flex items-center justify-center space-x-1 transition-all">
+                                <i class="fa-solid fa-copy"></i>
+                                <span>複製疏文全文</span>
+                            </button>
+                            <button type="button" onclick="downloadShuWenJpg()" class="flex-1 bg-templeRed hover:bg-templeDarkRed text-amber-200 font-bold py-2.5 px-4 rounded-lg shadow text-center flex items-center justify-center space-x-1 transition-all border border-templeGold/50">
+                                <i class="fa-solid fa-download"></i>
+                                <span>下載疏文圖檔</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="lg:col-span-7 flex flex-col items-center justify-center">
+                    <div id="shuWenCardContainer" class="w-full max-w-lg bg-[#b91c1c] text-[#fef08a] p-8 rounded-xl shadow-2xl border-8 border-[#7f1d1d] relative overflow-hidden font-serif">
+                        <div class="border-2 border-dashed border-[#fcd34d] p-6 rounded relative bg-[#991b1b]/95">
+                            <div class="text-center mb-3 border-b border-amber-400/40 pb-2">
+                                <span class="bg-[#7f1d1d] text-amber-300 px-4 py-0.5 rounded-full border border-amber-300/50 text-xs tracking-widest font-bold">彰濱天后宮 敬製</span>
+                                <h3 class="text-xl font-black text-amber-200 mt-1.5 tracking-widest">【 祈 福 表 文 】</h3>
+                            </div>
+                            <div id="shuWenVerticalDisplay" class="vertical-text-rtl h-[440px] overflow-x-auto w-full text-amber-100 text-sm md:text-base leading-relaxed font-semibold mx-auto flex items-start gap-x-5 py-2 px-1">
+                            </div>
+                            <div class="mt-3 pt-2 border-t border-amber-400/40 flex justify-between items-center text-xs text-amber-200/80">
+                                <div>誠心拜請 祈求靈驗</div>
+                                <div class="w-12 h-12 border-2 border-amber-400 text-amber-300 rounded flex items-center justify-center font-bold text-[10px] transform rotate-12 bg-templeDarkRed/50">
+                                    天后宮印
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. 即時農民曆 -->
+        <section id="sec-almanac" class="tab-content hidden space-y-6">
+            <div class="bg-white rounded-2xl shadow-xl border border-amber-200 p-6">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-amber-200 pb-4 mb-6 gap-4">
+                    <div>
+                        <div class="flex items-center space-x-2">
+                            <span id="almanacBadge" class="bg-templeRed text-white px-3 py-1 rounded-md text-xs font-bold tracking-wider">所選日期黃道吉日與農民曆</span>
+                            <button onclick="resetToTodayAlmanac()" class="bg-amber-800 hover:bg-amber-900 text-amber-100 text-xs px-2.5 py-1 rounded-md font-bold transition flex items-center space-x-1 shadow-sm">
+                                <i class="fa-solid fa-rotate-left"></i>
+                                <span>返回今日</span>
+                            </button>
+                        </div>
+                        <h2 id="almanacSolarDate" class="text-3xl font-black text-templeDarkRed mt-1">2026年 9月 22日</h2>
+                        <p id="almanacSolarWeek" class="text-sm font-bold text-gray-600">星期二</p>
+                    </div>
+                    <div class="bg-amber-50 border border-amber-300 rounded-xl p-4 text-right">
+                        <div class="text-xs text-amber-800 font-bold">農民曆干支與節氣</div>
+                        <div id="almanacLunarDate" class="text-lg font-black text-templeRed">丙午年 丁酉月 癸亥日</div>
+                        <div id="almanacSolarTerm" class="text-xs font-semibold text-amber-700 mt-0.5">節氣：秋分</div>
+                    </div>
+                </div>
+
+                <div class="bg-amber-100/60 border border-amber-300 rounded-xl p-4 mb-6 flex flex-col sm:flex-row items-center justify-between gap-3">
+                    <div class="flex items-center space-x-2 w-full sm:w-auto">
+                        <label for="almanacDatePicker" class="font-bold text-xs text-amber-900 flex-shrink-0">選擇查詢日期：</label>
+                        <input type="date" id="almanacDatePicker" onchange="onDateSelected(this.value)" class="bg-white border border-amber-400 rounded-lg px-3 py-1.5 text-sm font-bold text-templeDarkRed focus:ring-2 focus:ring-templeRed focus:outline-none">
+                    </div>
+                    <div id="holidayBadgeContainer" class="text-xs font-bold text-red-600"></div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                    <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-4 flex items-start space-x-3">
+                        <div class="w-10 h-10 rounded-full bg-emerald-600 text-white flex items-center justify-center font-black text-lg flex-shrink-0">
+                            宜
+                        </div>
+                        <div>
+                            <div class="font-bold text-emerald-900 text-sm mb-1">擇日黃道吉事 (宜)</div>
+                            <p id="almanacSuitable" class="text-xs md:text-sm text-emerald-800 leading-relaxed">
+                                祭祀、祈福、求嗣、開光、出行、簽約、納財、祭告神明。
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="bg-rose-50 border border-rose-200 rounded-xl p-4 flex items-start space-x-3">
+                        <div class="w-10 h-10 rounded-full bg-rose-600 text-white flex items-center justify-center font-black text-lg flex-shrink-0">
+                            忌
+                        </div>
+                        <div>
+                            <div class="font-bold text-rose-900 text-sm mb-1">擇日諸事不宜 (忌)</div>
+                            <p id="almanacAvoid" class="text-xs md:text-sm text-rose-800 leading-relaxed">
+                                破土、動土、安葬、訴訟、酗酒、作灶。
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="bg-amber-50/70 border border-amber-200 rounded-xl p-4">
+                        <h4 class="font-bold text-templeRed text-sm flex items-center mb-2">
+                            <i class="fa-regular fa-clock mr-2"></i> 當日參拜吉時時辰與時間
+                        </h4>
+                        <p id="auspiciousHoursText" class="text-xs md:text-sm font-bold text-amber-950 leading-relaxed">
+                            辰時 (07:00-08:59) ‧ 午時 (11:00-12:59) ‧ 申時 (15:00-16:59)
+                        </p>
+                    </div>
+
+                    <div class="bg-amber-50/70 border border-amber-200 rounded-xl p-4">
+                        <h4 class="font-bold text-templeRed text-sm flex items-center mb-2">
+                            <i class="fa-solid fa-compass mr-2"></i> 吉神方位與每日沖煞
+                        </h4>
+                        <div id="almanacDirections" class="text-xs md:text-sm font-semibold text-amber-900 flex flex-wrap gap-x-4 gap-y-1">
+                            <span>🧭 財神吉方：<strong class="text-templeRed">正東方</strong></span>
+                            <span>🧭 喜神吉方：<strong class="text-templeRed">西南方</strong></span>
+                            <span>⚡ 每日沖煞：<strong class="text-rose-700">沖蛇 (歲煞)</strong></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. 媽祖靈籤 (All 50 unique sticks database) -->
+        <section id="sec-fortune" class="tab-content hidden space-y-6">
+            <div class="bg-white rounded-2xl shadow-xl border border-amber-200 p-6">
+                <div class="border-b-2 border-templeRed pb-3 mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                    <div>
+                        <h2 class="text-xl font-black text-templeRed flex items-center">
+                            <i class="fa-solid fa-yin-yang mr-2 text-templeGold"></i> 彰濱天后宮 靈籤占卜 (第一首 ~ 第五十首全集)
+                        </h2>
+                        <p class="text-xs text-gray-500 mt-1">誠心默念所求之事，搖動籤筒抽籤，並向媽祖擲筊確認聖杯（一陰一陽）</p>
+                    </div>
+                    <button onclick="resetFortuneState()" class="bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300 px-3 py-1.5 rounded-lg text-xs font-bold transition shadow-sm">
+                        <i class="fa-solid fa-rotate-right mr-1"></i> 重新求籤
+                    </button>
+                </div>
+
+                <!-- Step 1: Traditional Temple Fortune Cylinder (籤筒) -->
+                <div id="fortuneStep1" class="space-y-6 text-center py-6">
+                    <div class="max-w-md mx-auto bg-amber-50 border-2 border-amber-300 rounded-2xl p-6 shadow-md">
+                        <div class="text-3xl mb-2">🏮</div>
+                        <h3 class="font-black text-lg text-templeDarkRed mb-2">媽祖靈籤：第一步：誠心搖籤筒抽籤</h3>
+                        <p class="text-xs text-gray-600 mb-6">請在心中默念您的姓名、生辰、居住地址以及所求之事，然後點擊按鈕左右搖動籤筒。</p>
+                        
+                        <div class="relative inline-block mb-8 flex justify-center h-48 items-end">
+                            <div id="jumpingStick" class="absolute top-4 left-1/2 transform -translate-x-1/2 w-4 h-36 bg-gradient-to-t from-amber-400 via-yellow-200 to-amber-100 rounded-full border-2 border-amber-900 shadow-2xl opacity-0 z-20 flex flex-col items-center justify-start pt-2">
+                                <span class="text-[9px] font-black text-amber-950 writing-mode-vertical tracking-widest">靈籤神示</span>
+                            </div>
+
+                            <div id="emergingStick" class="absolute top-2 left-1/2 transform -translate-x-1/2 w-2 h-24 bg-yellow-300 rounded-full opacity-0 z-10 transition-all duration-500"></div>
+
+                            <div id="templeCylinder" class="relative w-28 h-40 bg-gradient-to-r from-amber-700 via-amber-600 to-amber-900 border-4 border-amber-300 rounded-2xl shadow-2xl flex flex-col items-center justify-between py-3 overflow-hidden">
+                                <div class="absolute -top-3 flex space-x-1.5 z-10">
+                                    <div class="w-1.5 h-10 bg-amber-200 rounded-full transform -rotate-12 border border-amber-800"></div>
+                                    <div class="w-1.5 h-12 bg-yellow-100 rounded-full border border-amber-800"></div>
+                                    <div class="w-1.5 h-11 bg-amber-300 rounded-full transform rotate-6 border border-amber-800"></div>
+                                    <div class="w-1.5 h-10 bg-amber-200 rounded-full transform rotate-12 border border-amber-800"></div>
+                                </div>
+                                <div class="text-[11px] text-amber-200 font-black tracking-widest mt-6 bg-black/40 px-2 py-0.5 rounded border border-amber-400/40">
+                                    籤筒
+                                </div>
+                                <div class="text-[9px] text-amber-100/90 font-bold">求問神明</div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <button id="shakeBtn" onclick="startShakeAndDraw()" class="bg-templeRed hover:bg-templeDarkRed text-amber-200 font-bold px-8 py-3 rounded-xl shadow-lg border border-templeGold transition transform hover:scale-105">
+                                <i class="fa-solid fa-hand-pointer mr-1"></i> 開始左右搖動籤筒抽籤
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 2: Toss Poe (擲筊) -->
+                <div id="fortuneStep2" class="hidden space-y-6 text-center py-6">
+                    <div class="max-w-lg mx-auto bg-amber-50 border-2 border-amber-300 rounded-2xl p-6 shadow-md">
+                        <span class="bg-templeGold/30 text-amber-900 px-3 py-1 rounded-full text-xs font-bold">已抽中：<strong id="drawnStickName" class="text-templeRed">第六首 丙辰籤 (中吉)</strong></span>
+                        <h3 class="font-black text-lg text-templeDarkRed mt-3 mb-2">第二步：向媽祖擲筊請示</h3>
+                        <p id="poeInstructionText" class="text-xs text-gray-600 mb-4">請點擊擲筊按鈕，若得「聖杯」（一陰一陽），即表示此籤確為媽祖賜示；若得笑杯或陰杯則需重新抽籤。</p>
+
+                        <div class="bg-amber-950/90 rounded-xl p-8 border border-amber-400/40 relative min-h-[160px] flex flex-col items-center justify-center mb-6 shadow-inner">
+                            <div id="poeContainer" class="flex justify-center space-x-8 mb-4">
+                                <div id="poeLeft" class="moon-block moon-curved-yang">陽面 (平)</div>
+                                <div id="poeRight" class="moon-block moon-curved-yin">陰面 (凸)</div>
+                            </div>
+                            <div id="poeResultText" class="text-amber-300 font-black text-sm md:text-base tracking-wide bg-black/50 px-4 py-1.5 rounded-lg border border-amber-500/30">
+                                準備擲筊請示媽祖...
+                            </div>
+                        </div>
+
+                        <div class="flex justify-center gap-3">
+                            <button onclick="tossPoe()" id="tossPoeBtn" class="bg-gradient-to-r from-templeRed to-templeDarkRed hover:from-amber-800 hover:to-amber-900 text-amber-200 font-bold px-8 py-3 rounded-xl shadow-lg border border-templeGold transition transform hover:scale-105">
+                                <i class="fa-solid fa-coins mr-1"></i> 誠心擲筊
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 3: Fortune Result Display -->
+                <div id="fortuneStep3" class="hidden space-y-6 py-4">
+                    <div class="bg-gradient-to-br from-amber-50 to-amber-100 border-2 border-templeGold rounded-2xl p-6 md:p-8 shadow-xl max-w-2xl mx-auto">
+                        <div class="text-center border-b-2 border-templeRed/30 pb-4 mb-4">
+                            <span class="bg-templeRed text-amber-200 px-3 py-1 rounded-full text-xs font-bold">聖杯確認 ‧ 媽祖靈籤</span>
+                            <h3 id="resultFortuneTitle" class="text-2xl font-black text-templeDarkRed mt-2">第六首 丙辰籤 (中吉)</h3>
+                            <p id="resultPoem" class="text-sm md:text-base text-amber-950 font-bold tracking-wider mt-2 italic">
+                                「走盡千山萬水苦，如今休去便回頭；良人若問前程事，好把產業換新舟。」
+                            </p>
+                        </div>
+
+                        <div class="space-y-4 text-sm text-gray-700">
+                            <div class="bg-white/80 border border-amber-300 rounded-xl p-4 shadow-sm">
+                                <h4 class="font-bold text-templeRed text-sm mb-1 flex items-center">
+                                    <i class="fa-solid fa-book-open mr-2"></i> 籤詩白話意涵
+                                </h4>
+                                <p id="resultMeaning" class="text-xs md:text-sm leading-relaxed text-gray-800">
+                                    暗示當事人過去的努力與奔波已到了一個轉折點。若繼續盲目堅持舊途可能徒勞無功，不如順應時勢改變作法、轉換跑道或重新調整計畫，必能迎來一番新氣象。
+                                </p>
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <div class="bg-amber-50 border border-amber-200 rounded-xl p-3">
+                                    <span class="font-bold text-templeDarkRed text-xs block mb-1">🏥 身體與健康</span>
+                                    <p id="resultHealth" class="text-xs text-gray-700">調養身心，作息正常，配合秀傳醫療團隊建議定能康復。</p>
+                                </div>
+                                <div class="bg-amber-50 border border-amber-200 rounded-xl p-3">
+                                    <span class="font-bold text-templeDarkRed text-xs block mb-1">💼 事業與工作</span>
+                                    <p id="resultCareer" class="text-xs text-gray-700">宜求創新突破，遇到瓶頸不妨轉換策略與思維。</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-6 text-center">
+                            <button onclick="resetFortuneState()" class="bg-amber-800 hover:bg-amber-900 text-white font-bold px-6 py-2.5 rounded-xl text-xs transition shadow">
+                                <i class="fa-solid fa-rotate-left mr-1"></i> 再次求籤占卜
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 5. 點光明燈 -->
+        <section id="sec-lantern" class="tab-content hidden space-y-6">
+            <div class="bg-white rounded-2xl shadow-xl border border-amber-200 p-6">
+                <div class="border-b-2 border-templeRed pb-3 mb-6">
+                    <h2 class="text-xl font-black text-templeRed flex items-center">
+                        <i class="fa-solid fa-lightbulb mr-2 text-templeGold"></i> 彰濱天后宮 線上點光明燈祈福
+                    </h2>
+                    <p class="text-xs text-gray-500 mt-1">點一盞光明心燈，照亮元辰光彩、平安順遂、智慧增長</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                    <div class="lg:col-span-5 bg-amber-50/70 border border-amber-300 rounded-2xl p-5">
+                        <h3 class="font-black text-templeDarkRed text-base mb-4 flex items-center">
+                            <i class="fa-solid fa-fire-flame-curved mr-2 text-templeGold"></i> 登記光明燈資料
+                        </h3>
+                        <form id="lanternForm" onsubmit="event.preventDefault(); submitLantern();" class="space-y-3 text-sm">
+                            <div>
+                                <label class="block font-bold text-gray-700 mb-1">光明燈種類</label>
+                                <select id="lanternType" class="w-full bg-white border border-amber-300 rounded-lg p-2.5 focus:ring-2 focus:ring-templeRed focus:outline-none">
+                                    <option value="光明燈">光明燈 (元辰光彩、前途光明)</option>
+                                    <option value="太歲燈">太歲燈 (消災解厄、平安順遂)</option>
+                                    <option value="文昌燈">文昌燈 (金榜題名、學業進步)</option>
+                                    <option value="財神燈">財神燈 (生意興隆、財源廣進)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block font-bold text-gray-700 mb-1">祈福人姓名</label>
+                                <input type="text" id="lanternName" value="陳小明" placeholder="請輸入姓名" class="w-full bg-white border border-amber-300 rounded-lg p-2.5 focus:ring-2 focus:ring-templeRed focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block font-bold text-gray-700 mb-1">生肖與祈福心願</label>
+                                <input type="text" id="lanternWish" value="肖馬 ‧ 祈求平安順遂、工作順利" placeholder="例如：肖馬 ‧ 闔家平安" class="w-full bg-white border border-amber-300 rounded-lg p-2.5 focus:ring-2 focus:ring-templeRed focus:outline-none">
+                            </div>
+                            <div class="pt-2">
+                                <button type="submit" class="w-full bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white font-bold py-3 px-4 rounded-xl shadow-lg border border-amber-300 transition flex items-center justify-center space-x-2">
+                                    <i class="fa-solid fa-fire text-amber-200"></i>
+                                    <span>確認點亮光明燈</span>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="lg:col-span-7 bg-gradient-to-b from-amber-950 via-templeDarkRed to-amber-950 border-2 border-templeGold rounded-2xl p-6 text-white shadow-2xl flex flex-col items-center justify-center min-h-[400px]">
+                        <div class="text-center mb-4">
+                            <span class="bg-templeGold/20 text-amber-200 border border-templeGold/40 px-3 py-1 rounded-full text-xs font-semibold">彰濱天后宮光明燈牆 ‧ 靈光庇佑</span>
+                            <h3 class="text-xl font-black text-amber-300 mt-2">萬燈呈祥 ‧ 元辰光彩</h3>
+                        </div>
+
+                        <div id="lanternWallGrid" class="grid grid-cols-3 sm:grid-cols-4 gap-3 w-full max-w-md py-4">
+                            <div class="bg-amber-900/80 border border-amber-400 rounded-xl p-2.5 text-center shadow-lg lantern-flicker flex flex-col items-center justify-center">
+                                <div class="text-2xl mb-1">🏮</div>
+                                <div class="text-[11px] font-black text-amber-200 truncate w-full">陳小明</div>
+                                <div class="text-[9px] text-amber-300/80">光明燈</div>
+                            </div>
+                            <div class="bg-amber-900/80 border border-amber-400 rounded-xl p-2.5 text-center shadow-lg lantern-flicker flex flex-col items-center justify-center">
+                                <div class="text-2xl mb-1">🏮</div>
+                                <div class="text-[11px] font-black text-amber-200 truncate w-full">林美玲</div>
+                                <div class="text-[9px] text-amber-300/80">太歲燈</div>
+                            </div>
+                            <div class="bg-amber-900/80 border border-amber-400 rounded-xl p-2.5 text-center shadow-lg lantern-flicker flex flex-col items-center justify-center">
+                                <div class="text-2xl mb-1">🏮</div>
+                                <div class="text-[11px] font-black text-amber-200 truncate w-full">張志豪</div>
+                                <div class="text-[9px] text-amber-300/80">文昌燈</div>
+                            </div>
+                            <div class="bg-amber-900/80 border border-amber-400 rounded-xl p-2.5 text-center shadow-lg lantern-flicker flex flex-col items-center justify-center">
+                                <div class="text-2xl mb-1">🏮</div>
+                                <div class="text-[11px] font-black text-amber-200 truncate w-full">王秀秀</div>
+                                <div class="text-[9px] text-amber-300/80">財神燈</div>
+                            </div>
+                        </div>
+
+                        <p class="text-xs text-amber-200/80 mt-4 text-center">
+                            💡 點燈後您的姓名將即時列入彰濱天后宮光明燈牆，每日由廟方誦經祈福。
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 6. 彰濱天后宮公告 -->
+        <section id="sec-announcement" class="tab-content hidden space-y-6">
+            <div class="bg-white rounded-2xl shadow-xl border border-amber-200 p-6">
+                <div class="border-b-2 border-templeRed pb-3 mb-6">
+                    <h2 class="text-xl font-black text-templeRed flex items-center">
+                        <i class="fa-solid fa-bullhorn mr-2 text-templeGold"></i> 彰濱天后宮最新公告與活動資訊
+                    </h2>
+                    <p class="text-xs text-gray-500 mt-1">掌握媽祖聖誕、法會活動、醫療健檢與廟務最新動態</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-amber-50/70 border border-amber-200 rounded-xl p-5 shadow-sm hover:shadow-md transition">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="bg-templeRed text-amber-200 text-xs px-2.5 py-0.5 rounded font-bold">進香活動</span>
+                            <span class="text-xs text-gray-500">2026-04-30</span>
+                        </div>
+                        <h3 class="font-black text-templeDarkRed text-base mb-2">彰濱秀傳媽祖回鑾謁祖進香</h3>
+                        <p class="text-xs text-gray-700 leading-relaxed mb-4">
+                            恭祝彰濱秀傳紀念醫院奉祀之鹿港天后宮分靈媽祖聖誕，擇訂於今日（5/06）吉時，舉辦盛大媽祖回鑾謁祖進香活動。由秀傳醫療體系總裁黃明和、營運長黃靖媛、彰濱院長黃信彰、彰濱天后宮榮譽大總理張文曲、大總理梁偉貿、彰濱工業區服務中心阮聖述主任等率領同仁，虔誠恭請天上聖母-媽祖登轎起駕。進香隊伍中不僅有身穿白袍的醫師、護理師組成護駕團，更由醫事與行政人員化身「先鋒仙女團」，手持香花燈爐引路，展現醫療人員虔敬之心。
+                            <br><br>
+                            起駕儀式後，隊伍在鞭炮聲中隆重出發，由大鼓陣、哨角隊、將軍團、及線西鄉老人會鄉親共同護送，於院區內進行祈福遶境，並駐駕各棟大樓，為病患及家屬賜福。
+                            <br><br>
+                            進香團隊抵達鹿港天后宮完成謁祖儀式後，隨即返回彰濱天后宮舉行安座大典，並依循鹿港傳統古禮，於廟埕設宴酬神。特別邀請在地法師主持安座祈安科儀，祈願媽祖庇佑醫病安康、院務昌隆，為此次文化季劃下圓滿句點。
+                        </p>
+                    </div>
+
+                    <div class="bg-amber-50/70 border border-amber-200 rounded-xl p-5 shadow-sm hover:shadow-md transition">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="bg-amber-800 text-amber-100 text-xs px-2.5 py-0.5 rounded font-bold">廟務公告</span>
+                            <span class="text-xs text-gray-500">2026-09-01</span>
+                        </div>
+                        <h3 class="font-black text-templeDarkRed text-base mb-2">線上點燈與祈福疏文系統正式上線</h3>
+                        <p class="text-xs text-gray-700 leading-relaxed mb-4">
+                            為了讓不便親自到廟參拜的信眾及醫護同仁能隨時向媽祖參拜祈福，本宮全新推出線上參拜、疏文自動生成及農民曆查詢系統，歡迎多加利用。
+                        </p>
+                        <span class="text-xs text-templeRed font-bold flex items-center">
+                            <i class="fa-regular fa-star mr-1"></i> 媽祖護彰濱 ‧ 秀傳守健康
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-templeDarkRed text-amber-200 border-t-4 border-templeGold mt-12 py-8">
+        <div class="max-w-6xl mx-auto px-4 text-center space-y-3 text-xs md:text-sm">
+            <h3 class="text-lg font-black text-amber-300 tracking-wider">彰濱天后宮</h3>
+            <p class="text-amber-100/80">地址：彰化縣鹿港鎮鹿工路6號 (彰濱秀傳健康園區旁) ‧ 服務電話：04-7813888#71926</p>
+            <p class="text-amber-200 font-semibold"><i class="fa-regular fa-clock mr-1"></i>開放參拜時間：每日：06：00~22：00</p>
+            <p class="text-amber-200/60 text-[11px]">© 2026 彰濱天后宮 版權所有 ‧ 媽祖護彰濱 秀傳守健康</p>
+        </div>
+    </footer>
+
+    <script>
+        // Tab Switcher
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('border-templeGold', 'bg-amber-950/40', 'text-amber-300');
+                btn.classList.add('border-transparent');
+            });
+
+            document.getElementById('sec-' + tabId).classList.remove('hidden');
+            const activeBtn = document.getElementById('tab-' + tabId);
+            activeBtn.classList.add('border-templeGold', 'bg-amber-950/40', 'text-amber-300');
+            activeBtn.classList.remove('border-transparent');
+        }
+
+        // Toast & Modal Helpers
+        function showToast(msg) {
+            const toast = document.getElementById('toastNotification');
+            document.getElementById('toastMsg').innerText = msg;
+            toast.classList.remove('translate-y-20', 'opacity-0', 'pointer-events-none');
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0', 'pointer-events-none');
+            }, 3500);
+        }
+
+        function showModal(title, msg) {
+            document.getElementById('modalTitle').innerText = title;
+            document.getElementById('modalMessage').innerText = msg;
+            document.getElementById('customModal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('customModal').classList.add('hidden');
+        }
+
+        // Worship Interactions
+        function lightIncense() {
+            const container = document.getElementById('incenseSticksContainer');
+            container.classList.remove('opacity-0');
+            document.getElementById('worshipStatusMsg').innerText = "🙏 已點燃心香三柱，恭請天上聖母慈悲鑒察弟子誠心上香！";
+            showToast("已成功向彰濱天后宮媽祖上香！");
+        }
+
+        function offerFlowers() {
+            document.getElementById('flowerVaseLeft').classList.remove('hidden', 'opacity-0');
+            document.getElementById('flowerVaseRight').classList.remove('hidden', 'opacity-0');
+            document.getElementById('worshipStatusMsg').innerText = "💐 已於神案左右獻上鮮花供養，祈求芳香遠聞、福慧圓滿。";
+            showToast("已成功獻上鮮花供養！");
+        }
+
+        function offerFruits() {
+            document.getElementById('fruitPlateContainer').classList.remove('hidden', 'opacity-0');
+            document.getElementById('worshipStatusMsg').innerText = "🍎 已於香爐前恭敬擺上五果素果 (蘋果、柑橘、水蜜桃、奇異果、香蕉) 供養媽祖！";
+            showToast("已成功獻上五果素果供養！");
+        }
+
+        function renderShuWen() {
+            const category = document.getElementById('shuCategory').value;
+            const name = document.getElementById('shuName').value || '信士';
+            const gender = document.getElementById('shuGender').value;
+            const zodiac = document.getElementById('shuZodiac').value;
+            const unit = document.getElementById('shuUnit').value || '彰化縣鹿港鎮鹿工路6號';
+            const wish = document.getElementById('shuCustomWish').value || '事業順利、闔家身體健康、消災解厄、萬事吉祥。';
+
+            const columns = [
+                `天上聖母 慈悲主宰 庇佑：${wish}`,
+                `伏以 虔誠備具香花果品 燈燭清酌之儀 祈求 ${category} 事宜`,
+                `現居 / 服務於：${unit}`,
+                `立疏人 ${name} (${gender}) 肖 ${zodiac}`,
+                `今據 彰濱天后宮 燈前 虔誠上奏`
+            ];
+
+            let html = '';
+            columns.forEach(colText => {
+                html += `<div class="flex flex-col">${colText}</div>`;
+            });
+            document.getElementById('shuWenVerticalDisplay').innerHTML = html;
+        }
+
+        function copyShuWenText() {
+            const name = document.getElementById('shuName').value;
+            const category = document.getElementById('shuCategory').value;
+            const text = `【彰濱天后宮祈福疏文】\n信士：${name}\n祈求：${category}\n已透過線上疏文系統虔誠上奏天上聖母庇佑。`;
+            navigator.clipboard.writeText(text).then(() => {
+                showToast("疏文重點已成功複製到剪貼簿！");
+            });
+        }
+
+        function downloadShuWenJpg() {
+            const card = document.getElementById('shuWenCardContainer');
+            html2canvas(card, { scale: 2 }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = '彰濱天后宮祈福疏文.png';
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+                showToast("疏文圖檔已成功下載！");
+            });
+        }
+
+        const taiwanHolidays = {
+            "2026-01-01": "開國紀念日",
+            "2026-02-16": "農曆除夕",
+            "2026-02-17": "農曆春節",
+            "2026-02-18": "農曆春節",
+            "2026-02-19": "農曆春節",
+            "2026-04-05": "清明節",
+            "2026-04-06": "清明節補假",
+            "2026-05-01": "勞動節",
+            "2026-06-19": "端午節",
+            "2026-09-25": "中秋節",
+            "2026-10-10": "國慶日",
+            "2027-01-01": "開國紀念日",
+            "2027-02-06": "農曆除夕",
+            "2027-02-07": "農曆春節",
+            "2027-02-08": "農曆春節",
+            "2027-02-09": "農曆春節",
+            "2027-04-05": "清明節",
+            "2027-05-01": "勞動節",
+            "2027-06-09": "端午節",
+            "2027-09-15": "中秋節",
+            "2027-10-10": "國慶日"
+        };
+
+        const ganList = ["甲", "乙", "丙", "丁", "戊", "己", "庚", "辛", "壬", "癸"];
+        const zhiList = ["子", "丑", "寅", "卯", "辰", "巳", "午", "未", "申", "酉", "戌", "亥"];
+        const zodiacAnimals = ["鼠", "牛", "虎", "兔", "龍", "蛇", "馬", "羊", "猴", "雞", "狗", "豬"];
+        const directionsList = ["正東方", "正南方", "正西方", "正北方", "東北方", "西北方", "東南方", "西南方"];
+        const auspiciousHoursPool = [
+            "子時 (23:00-00:59) ‧ 卯時 (05:00-06:59) ‧ 午時 (11:00-12:59)",
+            "丑時 (01:00-02:59) ‧ 辰時 (07:00-08:59) ‧ 申時 (15:00-16:59)",
+            "寅時 (03:00-04:59) ‧ 巳時 (09:00-10:59) ‧ 酉時 (17:00-18:59)",
+            "卯時 (05:00-06:59) ‧ 午時 (11:00-12:59) ‧ 亥時 (21:00-22:59)",
+            "辰時 (07:00-08:59) ‧ 未時 (13:00-14:59) ‧ 戌時 (19:00-20:59)"
+        ];
+        const suitablePool = [
+            "祭祀、祈福、求嗣、開光、出行、簽約、納財、祭告神明。",
+            "祭祀、動土、納采、嫁娶、安床、開市、交易。",
+            "祭祀、出行、納財、修造、動土、解除、安床。",
+            "祈福、求嗣、上樑、啟鑽、安葬、祭祀、入宅。",
+            "祭祀、作灶、納財、栽種、牧養、求醫、治病。"
+        ];
+        const avoidPool = [
+            "破土、動土、安葬、訴訟、酗酒、作灶。",
+            "嫁娶、安葬、作灶、入宅、探病。",
+            "訴訟、開市、安床、置產、納畜。",
+            "掘井、作灶、嫁娶、遠行、栽種。",
+            "開市、動土、破土、安葬、納采。"
+        ];
+
+        function resetToTodayAlmanac() {
+            const todayStr = new Date().toISOString().split('T')[0];
+            document.getElementById('almanacDatePicker').value = todayStr;
+            loadAlmanacByDate(todayStr);
+            showToast("已切換回今日農民曆");
+        }
+
+        function onDateSelected(dateStr) {
+            loadAlmanacByDate(dateStr);
+        }
+
+        function loadAlmanacByDate(dateStr) {
+            const dateObj = new Date(dateStr);
+            const year = dateObj.getFullYear();
+            const month = dateObj.getMonth() + 1;
+            const day = dateObj.getDate();
+            const weekDays = ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"];
+            const weekStr = weekDays[dateObj.getDay()];
+            const isWeekend = (dateObj.getDay() === 0 || dateObj.getDay() === 6);
+            const holidayName = taiwanHolidays[dateStr];
+
+            document.getElementById('headerSolarDate').innerText = `${year}年 ${month}月 ${day}日`;
+            document.getElementById('almanacSolarDate').innerText = `${year}年 ${month}月 ${day}日`;
+            
+            const solarDateEl = document.getElementById('almanacSolarDate');
+            if (isWeekend || holidayName) {
+                solarDateEl.className = "text-3xl font-black text-red-600 mt-1";
+            } else {
+                solarDateEl.className = "text-3xl font-black text-templeDarkRed mt-1";
+            }
+
+            document.getElementById('almanacSolarWeek').innerText = weekStr;
+
+            const holidayBadge = document.getElementById('holidayBadgeContainer');
+            if (holidayName) {
+                holidayBadge.innerHTML = `<span class="text-red-600 font-bold"><i class="fa-solid fa-star mr-1"></i>國定假日 / 補休：${holidayName}</span>`;
+            } else if (isWeekend) {
+                holidayBadge.innerHTML = `<span class="text-red-600 font-bold"><i class="fa-solid fa-calendar-day mr-1"></i>假日 (週末休息)</span>`;
+            } else {
+                holidayBadge.innerHTML = `<span class="text-amber-800">💡 提示：點選日期可隨時查詢任一日之彰濱天后宮農民曆與吉凶宜忌。</span>`;
+            }
+
+            const seed = year * 10000 + month * 100 + day;
+            const ganIndex = seed % 10;
+            const zhiIndex = (seed + 4) % 12;
+            const monthGan = (year * 12 + month) % 10;
+            const monthZhi = (month + 1) % 12;
+            const clashZhiIndex = (zhiIndex + 6) % 12;
+            const zodiacClash = zodiacAnimals[clashZhiIndex];
+
+            const wealthDir = directionsList[seed % 8];
+            const joyDir = directionsList[(seed + 3) % 8];
+            const ausHours = auspiciousHoursPool[seed % auspiciousHoursPool.length];
+            const suitableText = suitablePool[seed % suitablePool.length];
+            const avoidText = avoidPool[seed % avoidPool.length];
+
+            const lunarYearGanZhi = `${ganList[(year - 4) % 10]}${zhiList[(year - 4) % 12]}年`;
+            const lunarMonthGanZhi = `${ganList[monthGan]}${zhiList[monthZhi]}月`;
+            const lunarDayGanZhi = `${ganList[ganIndex]}${zhiList[zhiIndex]}日`;
+
+            document.getElementById('almanacLunarDate').innerText = `${lunarYearGanZhi} ${lunarMonthGanZhi} ${lunarDayGanZhi}`;
+            document.getElementById('almanacSolarTerm').innerText = (day === 4 || day === 5) && (month === 4 || month === 6 || month === 10) ? "節氣：交節氣吉日" : "節氣：吉日良辰";
+            document.getElementById('almanacSuitable').innerText = suitableText;
+            document.getElementById('almanacAvoid').innerText = avoidText;
+            document.getElementById('auspiciousHoursText').innerText = ausHours;
+            document.getElementById('almanacDirections').innerHTML = `🧭 財神吉方：<strong class="text-templeRed">${wealthDir}</strong> ｜ 🧭 喜神吉方：<strong class="text-templeRed">${joyDir}</strong> ｜ ⚡ 每日沖煞：<strong class="text-rose-700">沖屬${zodiacClash} (歲煞)</strong>`;
+        }
+
+        // Comprehensive 50 Distinct Fortune Sticks Database
+        const fortuneSticks50 = [
+            { id: 1, title: "第一首 甲寅籤 (大吉)", poem: "「天仙移架自安然，福祿隨身不用言；營謀大事皆如意，百事亨通萬事全。」", meaning: "運勢極佳，得神明庇佑，諸事順遂，無往不利。", health: "元辰光彩，身心康泰，平時保持清淡飲食即可。", career: "大展鴻圖，謀事必成，創業發展皆得貴人相助。" },
+            { id: 2, title: "第二首 甲辰籤 (中平)", poem: "「風恬浪靜可行舟，恰是中秋月一輪；萬事無傷心所樂，任君任意走西東。」", meaning: "時機平穩，心境開朗，可以照既定計畫放心前行。", health: "平安無恙，遵照醫囑即可，心情愉快有助康復。", career: "穩健發展，無須躁進，各項工作皆能順利推進。" },
+            { id: 3, title: "第三首 甲午籤 (中吉)", poem: "「君爾何須問聖蹟，自己心中皆有益；于今且看月中旬，兇事脫然化吉昌。」", meaning: "心誠則靈，不必過度擔憂，月中過後厄運消除轉為吉祥。", health: "漸入佳境，安心調養，注意作息規律。", career: "先難後易，終有成效，度過考驗後迎來佳績。" },
+            { id: 4, title: "第四首 甲申籤 (中平)", poem: "「風頭才聽好消息，算定浮沈未見機；暫且安居守舊業，莫將心事亂疑猜。」", meaning: "局勢未明，宜守不宜攻，靜觀其變為上策。", health: "保持心情平靜，作息定時，切忌操勞過度。", career: "固守本業，切忌冒險投機，穩扎穩打方能避險。" },
+            { id: 5, title: "第五首 甲戌籤 (下吉)", poem: "「各有利名自相逢，何必憂疑心中忡；只要平心常吉慶，自然禍散福隨豐。」", meaning: "謀事莫急，凡事以和為貴，保持平靜自能逢凶化吉。", health: "注意情緒起伏，清淡飲食，適度運動舒緩壓力。", career: "暫緩擴張，以和為貴，避免與同事客戶發生爭執。" },
+            { id: 6, title: "第六首 丙辰籤 (中吉)", poem: "「走盡千山萬水苦，如今休去便回頭；良人若問前程事，好把產業換新舟。」", meaning: "過去奔波已到轉折點，轉換跑道或更新策略，必能迎來新氣象。", health: "配合秀傳醫療團隊建議定能康復，適時休養生息。", career: "宜求創新突破，遇到瓶頸不妨轉換策略與思維。" },
+            { id: 7, title: "第七首 丙午籤 (中平)", poem: "「平生富貴成祿位，君子當權失大機；若逢時來多吉慶，猶如枯木逢春花。」", meaning: "目前雖逢瓶頸，但時機一到自然枯木逢春，展現新機。", health: "耐心治療，康復可期，調養脾胃注意保暖。", career: "靜待良機，蓄勢待發，切勿灰心喪志。" },
+            { id: 8, title: "第八首 丙申籤 (中吉)", poem: "「漁翁利益向西川，禍害消散福自然；若得進益無所阻，月落再圓重見天。」", meaning: "撥雲見日，阻礙消散，迎來順遂好運。", health: "病體漸癒，元氣恢復，多吸取新鮮空氣。", career: "財運亨通，前途光明，開拓新市場大有可為。" },
+            { id: 9, title: "第九首 丙戌籤 (下吉)", poem: "「急水灘頭放廢舟，萬事恐爾身不自由；縱然載得重寶歸，空勞心力也無謀。」", meaning: "危險之地不可久留，切勿冒險行事，以免徒勞無功。", health: "多加休養，避免勞累，慎防風寒及慢性疲勞。", career: "保守為宜，切勿投機，合約審核務必謹慎。" },
+            { id: 10, title: "第十首 丁亥籤 (上吉)", poem: "「守己安然定主張，莫教心意亂茫茫；幸有貴人來扶助，時來運轉呈吉祥。」", meaning: "堅定心志，自有貴人相助，運勢轉佳。", health: "福星高照，平安健康，無重大病厄。", career: "貴人提攜，前途看好，升遷考核順遂通過。" },
+            { id: 11, title: "第十一首 丁丑籤 (中平)", poem: "「靈雞漸漸見分明，凡事且看子丑寅；若得生平心正直，自然禍去福來臨。」", meaning: "運勢漸漸明朗，只要心存正直，自然福報隨之而來。", health: "循序漸進調理，身體機能逐漸恢復平衡。", career: "行事坦蕩公正，合作夥伴對您信賴有加。" },
+            { id: 12, title: "第十二首 丁卯籤 (中吉)", poem: "「長江風浪漸漸靜，於今得進可安寧；此去必然無慮事，貴人扶持慶文書。」", meaning: "風波平息，可以安心前進，公文書信與合約皆吉。", health: "氣血順暢，病痛漸消，遵照醫囑很快康復。", career: "業務推展順利，官司訴訟或考試考證皆能過關。" },
+            { id: 13, title: "第十三首 丁巳籤 (大吉)", poem: "「祿馬交叉自有期，何須急速自疑遲；若逢虎兔相逢日，必定昭昭進百財。」", meaning: "福祿自然有期，無須急躁懷疑，時機一到財源廣進。", health: "精氣神十足，抵抗力佳，保持適度運動。", career: "財源滾滾，投資合作在特定月份收穫豐碩。" },
+            { id: 14, title: "第十四首 丁未籤 (中吉)", poem: "「財中漸漸見分明，花開花謝結子成；寬心且看月中後，萬事回春好經營。」", meaning: "時機成熟便能開花結果，月中過後各項計畫大好。", health: "調理體質見成效，精神狀態飽滿。", career: "業務耕耘有成，客戶回流，營收逐漸成長。" },
+            { id: 15, title: "第十五首 戊子籤 (中平)", poem: "「玉石未分不須忙，心中有事枉思量；凡事耐心休急躁，自然安穩保安康。」", meaning: "事情尚未明朗前切勿急躁，保持耐性方能平安。", health: "作息正常，減少熬夜，調養心神為要。", career: "謀定後動，切忌因衝動而做出錯誤決策。" },
+            { id: 16, title: "第十六首 戊寅籤 (中吉)", poem: "「太公家業八十成，月出光輝四海明；命裡自然終久有，不須枉費枉勞心。」", meaning: "大器晚成或福報深厚，屬於您的終究會得到，毋需焦慮。", health: "年長者身體康健，慢性病控制得宜。", career: "累積多年實力終獲重用，大展身手。" },
+            { id: 17, title: "第十七首 戊辰籤 (上吉)", poem: "「君爾寬心且自由，門庭清吉家道優；財寶自然歡喜合，家門和氣萬事周。」", meaning: "心境放寬，家庭和睦，財喜雙至，萬事圓滿。", health: "一家安康，身心舒暢，無須憂慮。", career: "團隊向心力強，事業經營蒸蒸日上。" },
+            { id: 18, title: "第十八首 戊午籤 (中平)", poem: "「君問中間此言投，萬事興隆不用憂；財帛始終皆吉慶，千家齊唱樂悠悠。」", meaning: "所問之事大吉大利，財運亨通，生活歡樂美滿。", health: "身體強健，精神奕奕，適宜戶外踏青。", career: "客源穩定，利潤增加，事業前景一片光明。" },
+            { id: 19, title: "第十九首 戊申籤 (中吉)", poem: "「富貴由命莫求強，造化隨時大吉昌；滿目青山夕陽好，何須惆悵嘆無常。」", meaning: "知足常樂，順應自然造化，生活自然安泰美好。", health: "保持樂觀心境，有助於身心長壽健康。", career: "心態平和，不與人爭，工作順心如意。" },
+            { id: 20, title: "第二十首 己丑籤 (中平)", poem: "「見利忘義莫去為，平安才是福相隨；若能守分安常吉，自有神明暗中推。」", meaning: "切勿貪圖不義之財，安守本分自有神明庇佑護持。", health: "生活作息規律，飲食清淡，保有一身清福。", career: "腳踏實地經營，商譽良好，客戶信任。" },
+            { id: 21, title: "第二十一首 己卯籤 (大吉)", poem: "「於今此景正當時，看看欲吐百花時；若能遇得春風暖，富貴榮華慶自知。」", meaning: "時來運轉，百花齊放，正值大展身手的好時機。", health: "精力充沛，病體全癒，容光煥發。", career: "抓住機遇積極開拓，榮華富貴指日可待。" },
+            { id: 22, title: "第二十二首 己巳籤 (中吉)", poem: "「太陰當權不須愁，出外求財百事休；若得貴人來指引，自然逢凶化吉周。」", meaning: "雖遇陰霾不必憂慮，若有貴人指引便能逢凶化吉。", health: "避免夜間遠行或過勞，注意睡眠品質。", career: "虛心接受長輩或主管建議，可化解危機。" },
+            { id: 23, title: "第二十三首 己未籤 (中平)", poem: "「欲求勝事可勝言，事久合宜出自然；莫學他人心急躁，安居樂業福綿延。」", meaning: "水到渠成，順其自然，切忌急功近利。", health: "放慢生活節奏，調養神經系統與脾胃。", career: "穩紮穩打，按部就班完成每一項工作任務。" },
+            { id: 24, title: "第二十四首 己酉籤 (上吉)", poem: "「月出光輝本自然，不同燈火羨光喧；情知好事君須記，莫錯尋源誤幾番。」", meaning: "真金不怕火煉，福報自然流露，切勿捨近求遠。", health: "身體底子扎實，抵抗力強，元氣充足。", career: "實力備受肯定，不需投機取巧，前途光明。" },
+            { id: 25, title: "第二十五首 庚子籤 (中吉)", poem: "「舊恨重重未改為，家中禍患不須悲；若逢運轉周遭日，始見平安百事宜。」", meaning: "過去的不順逐漸過去，度過低潮後迎來平安順遂。", health: "慢性病逐漸獲得控制，定期回診遵醫囑。", career: "走出低谷，重新調整步伐，迎向新挑戰。" },
+            { id: 26, title: "第二十六首 庚寅籤 (中平)", poem: "「選出功名十年窗，如今鳥獸伴成行；若得貴人提攜日，直上青雲姓名香。」", meaning: "十年寒窗苦讀，時機一到自然金榜題名、名揚四海。", health: "多注意用眼衛生與肩頸舒緩，避免久坐。", career: "考試求職、升遷考核終獲賞識，前途看好。" },
+            { id: 27, title: "第二十七首 庚辰籤 (大吉)", poem: "「一輪明月照窗前，扒開雲霧見青天；君家自有通達路，何須枉費心茫然。」", meaning: "明月重現，撥雲見日，前途光輝燦爛無須迷茫。", health: "身體康復迅速，神清氣爽，元氣大振。", career: "障礙完全排除，各項企劃執行得心應手。" },
+            { id: 28, title: "第二十八首 庚午籤 (中吉)", poem: "「船到江中浪當頭，心中憂慮恐難舟；幸得平川帆風順，平安到達好消憂。」", meaning: "雖經風浪驚險，終能安然度過，風平浪靜抵達目的地。", health: "突發小病無礙，妥善治療即安。", career: "度過專案危機，團隊合作獲得圓滿成功。" },
+            { id: 29, title: "第二十九首 庚申籤 (中平)", poem: "「欲去長江水渺茫，閑來耘植候時光；若逢風順多吉慶，滿載金銀歸故鄉。」", meaning: "此時宜耕耘等待時機，順風之時必能滿載而歸。", health: "養精蓄銳，適度補充營養與體力。", career: "做好前期準備工作，蓄積實力以待爆發。" },
+            { id: 30, title: "第三十首 庚戌籤 (下吉)", poem: "「詩書本是世間珍，交易公事莫生嗔；凡事平心休計較，自然災禍不來侵。」", meaning: "以和為貴，切勿與人爭執計較，保持理性可避災禍。", health: "保持情緒穩定，慎防血壓波動及心血管保養。", career: "職場溝通保持耐心，避免意氣用事引發衝突。" },
+            { id: 31, title: "第三十一首 辛丑籤 (中吉)", poem: "「綠柳蒼蒼正當時，任君此去作乾坤；花果結實無殘損，福祿自有慶家門。」", meaning: "正是大展身手的好時機，收穫豐碩，家門福祿慶賀。", health: "身體健旺，氣色紅潤，活力充沛。", career: "經營事業成果豐收，員工向心力十足。" },
+            { id: 32, title: "第三十二首 辛卯籤 (中平)", poem: "「巧言令色少誠真，莫聽人言誤自身；且自安居守己分，自然無事保平親。」", meaning: "防範小人甜言蜜語，堅守自我本分即可平安無事。", health: "作息正常，不受外在環境干擾引發焦慮。", career: "職場人事複雜，明哲保身，專注自身職責。" },
+            { id: 33, title: "第三十三首 辛巳籤 (上吉)", poem: "「欲問身安運泰時，風生水起正當時；財源廣進家聲振，百事無憂慶有餘。」", meaning: "運勢亨通，如魚得水，財源廣進，家道興旺。", health: "身心安泰，福氣綿長，健康無虞。", career: "生意興隆，業績創新高，前程遠大。" },
+            { id: 34, title: "第三十四首 辛未籤 (中吉)", poem: "「經商出外可隨心，自有財源日日新；若問前程歸何處，滿園春色笑迎人。」", meaning: "外出經商求財順遂，日日有收益，前景春風得意。", health: "出門在外平安順利，飲食衛生多注意。", career: "拓展外地市場或跨部門合作獲得巨大成功。" },
+            { id: 35, title: "第三十五首 辛酉籤 (中平)", poem: "「意中若問神仙事，此去行藏不必疑；祖宗積德多庇蔭，自然無禍免災危。」", meaning: "祖德庇蔭，行事光明磊落，自然逢凶化吉免災危。", health: "平安無災，祖先保佑，身心康泰。", career: "按部就班執行計畫，基礎穩固不易動搖。" },
+            { id: 36, title: "第三十六首 壬子籤 (大吉)", poem: "「積善之家慶有餘，運來通達笑呵呵；從今萬事皆如意，福壽雙全樂吉多。」", meaning: "積善餘慶，運勢通達，萬事如意，福壽雙全。", health: "福壽康寧，精神爽朗，無病無痛。", career: "各項事業推展皆得圓滿，名利雙收。" },
+            { id: 37, title: "第三十七首 壬寅籤 (中吉)", poem: "「名顯有意在中央，不須祈禱心自忙；看看早晚日輪出，照耀乾坤四海光。」", meaning: "名望與前程早已安排妥當，不必過度焦慮忙亂。", health: "氣色光彩，元氣十足，身心舒暢。", career: "才華受主管賞識，升遷或轉職皆大吉大利。" },
+            { id: 38, title: "第三十八首 壬辰籤 (中平)", poem: "「名成利就此時宜，守己安然莫妄為；若得貴人加力助，家中歡慶喜眉齊。」", meaning: "現狀已有所成，安守本分莫妄為，喜慶隨之而來。", health: "保持現狀，定期健康檢查即可安心。", career: "穩健收成，切勿貪多冒進導致破財。" },
+            { id: 39, title: "第三十九首 壬午籤 (中吉)", poem: "「夫子積學數十年，一旦成名天下傳；若逢際會風雲便，此去前程拓大千。」", meaning: "十年寒窗苦學，一朝揚名天下，掌握契機前程無限。", health: "體力充沛，心態積極，有益身心健康。", career: "專業能力備受肯定，迎來職場重大發展機遇。" },
+            { id: 40, title: "第四十首 壬申籤 (下吉)", poem: "「平生心地枉勞心，出入風波恐害深；若得回頭修善道，自然福祿見重臨。」", meaning: "莫作非分之想，多行善事迴向，福祿自會重臨。", health: "注意心理壓力調適，多接近大自然沉澱身心。", career: "放棄不切實際的投機計畫，回歸正道經營。" },
+            { id: 41, title: "第四十一首 癸丑籤 (上吉)", poem: "「今行到此實難推，黃閣仙人主事時；若逢際會風雲便，此去加官進祿期。」", meaning: "時機絕佳，得貴人提攜，加官進祿之期已到。", health: "神采奕奕，百病不侵，精力旺盛。", career: "仕途或職場表現亮眼，升官發財指日可待。" },
+            { id: 42, title: "第四十二首 癸卯籤 (中吉)", poem: "「門前竹苞笑迎風，福祿來時自然通；若得貴人相引導，滿堂金玉喜重重。」", meaning: "家門吉慶，福祿亨通，貴人引導下財源滾滾。", health: "闔家平安健康，無諸般憂慮。", career: "生意興隆，客源穩定擴增，收穫豐碩。" },
+            { id: 43, title: "第四十三首 癸巳籤 (中平)", poem: "「一重江水一重山，誰知此去路艱難；多虧神明暗中助，渡過危難見平安。」", meaning: "過程雖有難關險阻，但在神明庇佑下必能安然渡過。", health: "渡過疾病低潮期，後續康復療程順利。", career: "突破重重難關後迎來曙光，經驗大增。" },
+            { id: 44, title: "第四十四首 癸未籤 (中吉)", poem: "「晝夜傳燈不暫停，暗室之中見光明；積德行善天知曉，福報隨身慶昇平。」", meaning: "光明正大，積德行善，自然享有太平福報。", health: "作息正常，心如明鏡，夜眠安穩。", career: "信譽卓著，客戶口碑極佳，事業穩健長久。" },
+            { id: 45, title: "第四十五首 癸酉籤 (上吉)", poem: "「花開結子喜重重，事事如意慶豐隆；若問前程何處好，春風得意馬蹄輕。」", meaning: "萬事如意，喜事連連，前程萬里春風得意。", health: "身心舒泰，氣血流暢，活力四射。", career: "事業全面爆發，各項目標完美達標。" },
+            { id: 46, title: "第四十六首 丙子籤 (中吉)", poem: "「深山得道出雲端，名顯鄉邦萬口傳；若逢貴人提攜日，直上青雲福祿全。」", meaning: "才華終獲賞識揚名鄉里，得貴人提攜福祿圓滿。", health: "筋骨舒暢，保養得宜，身體康健。", career: "聲名遠播，專業地位確立，受人敬重。" },
+            { id: 47, title: "第四十七首 丙寅籤 (中平)", poem: "「雲開霧散見太陽，行路茫茫不用防；貴人牽手向前去，財寶如山福滿堂。」", meaning: "前途光明，貴人相助，財寶豐滿福氣滿堂。", health: "精神飽滿，病體痊癒，元氣盡復。", career: "合作案順利簽署，營收財源大幅增加。" },
+            { id: 48, title: "第四十八首 丁卯籤 (大吉)", poem: "「百川匯海浪滔滔，福祿成群志氣高；若得神明來擁護，萬般如意樂陶陶。」", meaning: "氣勢如虹，萬事如意，福祿雙全樂陶陶。", health: "元神光彩，百病消除，身心壯健。", career: "團隊業績傲視同儕，宏圖大展。" },
+            { id: 49, title: "第四十九首 戊辰籤 (中吉)", poem: "「春風吹散百花開，福祿雙全喜事來；若問前程歸何處，錦繡前途笑眼開。」", meaning: "春風得意，福祿雙全，錦繡前途喜笑顏開。", health: "氣色紅潤，神清氣爽，平安吉慶。", career: "前程一片光明，各項考績與評鑑均獲特優。" },
+            { id: 50, title: "第五十首 己巳籤 (上吉)", poem: "「天恩祖德保平安，萬事如意福綿延；從此無災無難處，笑看風雲樂年年。」", meaning: "天恩祖德護佑，無災無難，幸福安樂年年。", health: "福壽綿長，身心安泰，福氣深厚。", career: "事業安穩順遂，享受豐碩的耕耘成果。" }
+        ];
+
+        let currentSelectedFortune = null;
+
+        function startShakeAndDraw() {
+            const cylinder = document.getElementById('templeCylinder');
+            const jumpingStick = document.getElementById('jumpingStick');
+            const emergingStick = document.getElementById('emergingStick');
+            const btn = document.getElementById('shakeBtn');
+
+            cylinder.classList.add('temple-cylinder-shake');
+            jumpingStick.classList.remove('stick-jump-out');
+            emergingStick.style.opacity = '1';
+            emergingStick.style.transform = 'translate(-50%, -20px) scaleY(1.2)';
+            btn.disabled = true;
+            btn.innerText = "籤筒左右搖動中...";
+            showToast("籤筒正在左右搖動，籤支正浮起抽出...");
+
+            setTimeout(() => {
+                cylinder.classList.remove('temple-cylinder-shake');
+                jumpingStick.classList.add('stick-jump-out');
+                emergingStick.style.opacity = '0';
+                btn.disabled = false;
+                btn.innerText = "開始左右搖動籤筒抽籤";
+
+                const randomIndex = Math.floor(Math.random() * fortuneSticks50.length);
+                currentSelectedFortune = fortuneSticks50[randomIndex];
+
+                setTimeout(() => {
+                    document.getElementById('drawnStickName').innerText = `${currentSelectedFortune.title}`;
+                    document.getElementById('fortuneStep1').classList.add('hidden');
+                    document.getElementById('fortuneStep2').classList.remove('hidden');
+                    showToast(`抽中 ${currentSelectedFortune.title}！請點擊擲筊請示媽祖。`);
+                }, 1000);
+            }, 2000);
+        }
+
+        function tossPoe() {
+            const poeLeft = document.getElementById('poeLeft');
+            const poeRight = document.getElementById('poeRight');
+            const resultText = document.getElementById('poeResultText');
+            const tossBtn = document.getElementById('tossPoeBtn');
+
+            poeLeft.classList.add('poe-toss-anim');
+            poeRight.classList.add('poe-toss-anim');
+            resultText.innerText = "擲筊中...";
+            tossBtn.disabled = true;
+
+            setTimeout(() => {
+                poeLeft.classList.remove('poe-toss-anim');
+                poeRight.classList.remove('poe-toss-anim');
+                tossBtn.disabled = false;
+
+                const rand = Math.random();
+                let outcome = "sheng";
+                if (rand < 0.25) outcome = "xiao";
+                else if (rand < 0.45) outcome = "yin";
+
+                if (outcome === "sheng") {
+                    poeLeft.className = "moon-block moon-curved-yang";
+                    poeRight.className = "moon-block moon-curved-yin";
+                    resultText.innerHTML = `<span class="text-emerald-400">聖杯！ (一陰一陽 ‧ 媽祖靈籤聖杯確認)</span>`;
+                    showToast("恭喜獲得聖杯！媽祖已賜示此籤。");
+
+                    setTimeout(() => {
+                        document.getElementById('resultFortuneTitle').innerText = currentSelectedFortune.title;
+                        document.getElementById('resultPoem').innerText = currentSelectedFortune.poem;
+                        document.getElementById('resultMeaning').innerText = currentSelectedFortune.meaning;
+                        document.getElementById('resultHealth').innerText = currentSelectedFortune.health;
+                        document.getElementById('resultCareer').innerText = currentSelectedFortune.career;
+
+                        document.getElementById('fortuneStep2').classList.add('hidden');
+                        document.getElementById('fortuneStep3').classList.remove('hidden');
+                    }, 1200);
+
+                } else if (outcome === "xiao") {
+                    poeLeft.className = "moon-block moon-curved-yang";
+                    poeRight.className = "moon-block moon-curved-yang";
+                    resultText.innerHTML = `<span class="text-amber-300">笑杯 (二陽) ‧ 媽祖指示笑而不答，需重新抽籤！</span>`;
+                    showToast("得到笑杯，請返回第一步重新抽籤。");
+                    setTimeout(() => { resetFortuneState(); }, 2000);
+
+                } else {
+                    poeLeft.className = "moon-block moon-curved-yin";
+                    poeRight.className = "moon-block moon-curved-yin";
+                    resultText.innerHTML = `<span class="text-rose-400">陰杯 (二陰) ‧ 媽祖指示不准，需重新抽籤！</span>`;
+                    showToast("得到陰杯（不准），請返回第一步重新抽籤。");
+                    setTimeout(() => { resetFortuneState(); }, 2000);
+                }
+
+            }, 900);
+        }
+
+        function resetFortuneState() {
+            document.getElementById('fortuneStep3').classList.add('hidden');
+            document.getElementById('fortuneStep2').classList.add('hidden');
+            document.getElementById('fortuneStep1').classList.remove('hidden');
+            document.getElementById('poeResultText').innerText = "準備擲筊請示媽祖...";
+        }
+
+        function submitLantern() {
+            const type = document.getElementById('lanternType').value;
+            const name = document.getElementById('lanternName').value || '信士';
+            const wish = document.getElementById('lanternWish').value || '元辰光彩';
+
+            const grid = document.getElementById('lanternWallGrid');
+            const newLantern = document.createElement('div');
+            newLantern.className = "bg-amber-900/80 border border-amber-400 rounded-xl p-2.5 text-center shadow-lg lantern-flicker flex flex-col items-center justify-center offering-appear";
+            newLantern.innerHTML = `
+                <div class="text-2xl mb-1">🏮</div>
+                <div class="text-[11px] font-black text-amber-200 truncate w-full">${name}</div>
+                <div class="text-[9px] text-amber-300/80">${type}</div>
+            `;
+            grid.prepend(newLantern);
+            showModal("光明燈點燈成功", `恭喜 ${name} 成功於彰濱天后宮點亮「${type}」！媽祖庇佑元辰光彩、平安吉祥。`);
+        }
+
+        window.onload = function() {
+            renderShuWen();
+            const todayStr = new Date().toISOString().split('T')[0];
+            document.getElementById('almanacDatePicker').value = todayStr;
+            loadAlmanacByDate(todayStr);
+        };
+    </script>
+</body>
+</html>
